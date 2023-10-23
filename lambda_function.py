@@ -1,7 +1,10 @@
 import os
 import requests
+import boto3
 import xmltodict
 import logging
+
+logging.basicConfig()
 
 try:
     fse_api_key = os.environ['FSE_API_KEY']
@@ -24,14 +27,16 @@ def check_aircraft_prices(criteria_list, aircraft_list):
     matching_aircraft = []
 
     for aircraft in aircraft_list:
+        make_model = aircraft['MakeModel']
+        sale_price = int(float(aircraft['SalePrice']))
         for criteria in criteria_list:
             if criteria['MakeModel'] == make_model and sale_price <= criteria['MaxPrice']:
                 matching_aircraft.append({
-                    'MakeModel': aircraft['MakeModel'],
+                    'MakeModel': make_model,
                     'Equipment': aircraft['Equipment'],
                     'Registration': aircraft['Registration'],
                     'Location': aircraft['Location'],
-                    'SalePrice': int(float(aircraft['SalePrice']))
+                    'SalePrice': sale_price
                 })
     
     return matching_aircraft
@@ -51,6 +56,38 @@ def construct_email_body(matching_aircraft):
 
     return email_body
 
+def send_email_with_ses(matching_aircraft_list):
+    # Construct the email body
+    email_body = construct_email_body(matching_aircraft_list)
+
+    # Initialize the boto3 SES client
+    client = boto3.client('ses', region_name='us-east-2')
+
+    # Email details
+    subject = 'Aircraft Search Results'
+    sender_email = os.environ['EMAIL_FROM_ADDRESS']
+    recipient_email = os.environ['EMAIL_TO_ADDRESS']
+
+    response = client.send_email(
+        Source=sender_email,
+        Destination={
+            'ToAddresses': [
+                recipient_email,
+            ]
+        },
+        Message={
+            'Subject': {
+                'Data': subject
+            },
+            'Body': {
+                'Text': {
+                    'Data': email_body
+                },
+            }
+        }
+    )
+
+    return response
 
 def lambda_handler(event, context):
     try:
@@ -64,25 +101,26 @@ def lambda_handler(event, context):
 
     if not aircraft_list:
         logging.info('No aircraft found!')
-        return ''
+        return None
     
     matching_aircraft = check_aircraft_prices(criteria_list, aircraft_list) 
 
     email_body = construct_email_body(matching_aircraft)
 
-    if matching_list:
-        if os.environ['EMAIL_TO_ADDRESS'] and ['EMAIL_FROM_ADDRESS']:
-            ## add ses logic here
-            pass
+    if matching_aircraft:
+        if os.environ.get('EMAIL_TO_ADDRESS') and os.environ.get('EMAIL_FROM_ADDRESS'):
+            return send_email_with_ses(matching_aircraft)
         else:
-            logging.info(email_body)
-            exit(0)
-    
+            print(email_body)
+    else:
+        logging.warning("No aircraft match search criteria!")
+
 
 if __name__ == "__main__":
+    logging.getLogger().setLevel(logging.DEBUG)
     simulated_event = {
         'criteria_list': [
-            {'MakeModel': 'Piper PA-24 Comanche (A2A)', 'MaxPrice': 280000},
+            {'MakeModel': 'Piper PA-24 Comanche (A2A)', 'MaxPrice': 350000},
             {'MakeModel': 'Cessna 172', 'MaxPrice': 200000}
         ]
     }
