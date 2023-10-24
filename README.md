@@ -1,5 +1,5 @@
 # fse-skymall
-Plane Price Tracker Lambda for Flight Sim Economy. This is a super simple lambda function that checks a list of planes with max price points against the master list of planes for sale from FSE. If there is a match and email is configured, a message will be sent notifying the user of the planes that match the search criteria.
+Plane Price Tracker Lambda for [FSEconomy](https://www.fseconomy.net/). This is a super simple lambda function that checks a list of planes with max price points against the master list of planes for sale from FSE. If there is a match and email is configured, a message will be sent notifying the user of the planes that match the search criteria.
 
 ## Installation
 
@@ -11,7 +11,8 @@ For email notification, you will need to set up your own SES identity to mail to
 
 ### Lambda
 
-Set up an Eventbridge schedule that is compatible with the API limits set by FSE (I chose 1 invocation/hour). The event needs to be sent with the following payload
+1. Set up an Eventbridge schedule that is compatible with the API limits set by FSE (I chose 1 invocation/hour).
+2. The event needs to be sent with the following payload
 
 ```json
 {
@@ -22,17 +23,36 @@ Set up an Eventbridge schedule that is compatible with the API limits set by FSE
 }
 ```
 
-The following environment variables are expected to be set:
+3. The following environment variables are expected to be set on the lambda:
 
 ```
 FSE_API_KEY (required)
 EMAIL_TO_ADDRESS (optional)
 EMAIL_FROM_ADDRESS (optional)
 ```
+4. The Lambda will require the following AWS Policy attached to its role to work with SES. Resources can be targeted to your "to" and "from" SES identities.
+```
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "SESEmailSending",
+			"Effect": "Allow",
+			"Action": [
+				"ses:SendEmail",
+				"ses:SendRawEmail"
+			],
+			"Resource": "*"
+		}
+	]
+}
+```
 
 ### Local execution
 
-Modify the `simulated_event` variable in the `__main__` guard, activate your virtualenv, and run with `python3 lambda_function.py`.
+1. Modify the `simulated_event` variable to your desired value
+2. in the `__main__` guard, activate your virtualenv
+3. Run with `python3 lambda_function.py`.
 
 The same env vars will need to be set in your terminal that need to be set for the lambda.
 
