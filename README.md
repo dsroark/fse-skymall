@@ -50,8 +50,8 @@ EMAIL_FROM_ADDRESS (optional)
 
 ### Local execution
 
-1. Modify the `simulated_event` variable to your desired value
-2. in the `__main__` guard, activate your virtualenv
+1. Modify the `simulated_event` variable to your desired value in the `__main__` guard
+2. Activate your virtualenv (`source venv/bin/activate`)
 3. Run with `python3 lambda_function.py`.
 
 The same env vars will need to be set in your terminal that need to be set for the lambda.
