@@ -61,3 +61,5 @@ The same env vars will need to be set in your terminal that need to be set for t
 1. Clone the repository
 2. Set up and source your virtualenv (I use `python3 -m venv venv/ && source venv/bin/activate`)
 3. Install packages with `pip install -r dev-requirements.txt`
+
+This project uses `pip` and `pip-tools` for package management.
