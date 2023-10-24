@@ -1,5 +1,5 @@
 # FSE SkyMall
-FSE SkyMall is a plane price tracker Lambda for [FSEconomy](https://www.fseconomy.net/). This is a super simple lambda function that checks a list of planes with max price points against the master list of planes for sale from FSE. If there is a match and email is configured, a message will be sent notifying the user of the planes that match the search criteria.
+FSE SkyMall is a plane price tracker Lambda for [FSEconomy](https://www.fseconomy.net/). This is a simple lambda function that checks a list of planes with max price points against the master list of planes for sale from FSE. If there is a match and email is configured, a message will be sent notifying the user of the planes that match the search criteria.
 
 ## Installation
 
