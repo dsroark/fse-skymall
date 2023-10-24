@@ -14,7 +14,7 @@ For email notification, you will need to set up your own SES identity to mail to
 1. Set up an Eventbridge schedule that is compatible with the API limits set by FSE (I chose 1 invocation/hour).
 2. The event needs to be sent with the following payload
 
-```json
+```
 {
   "criteria_list": [
     {"MakeModel": "<Plane model as it appears in FSE>", "MaxPrice": <integer price point>},
